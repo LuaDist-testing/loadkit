@@ -1,8 +1,10 @@
+local VERSION = "1.1.0"
 local insert, remove
 do
   local _obj_0 = table
   insert, remove = _obj_0.insert, _obj_0.remove
 end
+local unpack = table.unpack or _G.unpack
 local dirsep, pathsep, wildcard = unpack((function()
   local _accum_0 = { }
   local _len_0 = 1
@@ -28,7 +30,10 @@ end
 wildcard = escape_pattern(wildcard)
 local modsep = escape_pattern(".")
 local make_loader
-make_loader = function(ext, handler)
+make_loader = function(ext, handler, load_path)
+  if load_path == nil then
+    load_path = package.path
+  end
   handler = handler or function(_, _, ...)
     return ...
   end
@@ -36,7 +41,7 @@ make_loader = function(ext, handler)
   do
     local _accum_0 = { }
     local _len_0 = 1
-    for path in package.path:gmatch("[^" .. tostring(pathsep) .. "]+") do
+    for path in load_path:gmatch("[^" .. tostring(pathsep) .. "]+") do
       local _continue_0 = false
       repeat
         do
@@ -123,6 +128,7 @@ is_registered = function(ext)
   return not not registered_handlers[ext]
 end
 return {
+  VERSION = VERSION,
   register = register,
   unregister = unregister,
   is_registered = is_registered,
